@@ -6,11 +6,62 @@ authors = [
     {name = "diego",email = "oliveiraj.diego@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13, <4.0"
 dependencies = [
+    "fastapi[standard] (>=0.116.0,<0.117.0)",
+    "sqlalchemy[asyncio] (>=2.0.41,<3.0.0)",
+    "psycopg[binary] (>=3.2.9,<4.0.0)",
+    "alembic (>=1.16.2,<2.0.0)",
+    "pydantic-settings (>=2.10.1,<3.0.0)",
+    "pyjwt (>=2.10.1,<3.0.0)",
+    "pwdlib[argon2] (>=0.2.1,<0.3.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-cov = "^6.2.1"
+pytest-asyncio = "^1.0.0"
+ruff = "^0.12.2"
+taskipy = "^1.14.1"
+freezegun = "^1.5.2"
+factory-boy = "^3.3.3"
+ipdb = "^0.13.13"
+testcontainers = "^4.10.0"
+
+[tool.pytest.ini_options]
+pythonpath = '.'
+addopt = '-p no:warnings'
+asyncio_default_fixture_loop_scope = 'function'
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations']
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+[tool.taskipy.tasks]
+lint = 'ruff check'
+pre_format = 'ruff check --fix'
+format = 'ruff format'
+run = 'fastapi dev books_collection/app.py'
+pre_test = 'task lint'
+test = 'pytest -vv -xs --cov=books_collection'
+post_test = 'coverage html'
+
