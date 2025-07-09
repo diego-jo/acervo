@@ -12,3 +12,6 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     TOKEN_TIME_EXPIRATION_SECS: int
+
+
+settings = Settings()

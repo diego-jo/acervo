@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class NovelistRequest(BaseModel):
@@ -10,4 +12,4 @@ class NovelistResponse(NovelistRequest):
 
 
 class NovelistUpdate(BaseModel):
-    name: str | None = None
+    name: Optional[str] = Field(default=None)
