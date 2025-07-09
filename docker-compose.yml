@@ -1,0 +1,14 @@
+services:
+  books_collection_database:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: local_user
+      POSTGRES_DB: books_collection_db
+      POSTGRES_PASSWORD: local_pass
+    ports:
+      - 5432:5432
+
+volumes:
+  pgdata:
