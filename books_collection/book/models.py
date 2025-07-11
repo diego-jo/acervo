@@ -18,9 +18,7 @@ class Book:
     novelist_id: Mapped[int] = mapped_column(ForeignKey('novelists.id'))
 
     novelist: Mapped['Novelist'] = relationship(  # noqa: F821 # type: ignore
-        init=False,
-        back_populates='books',
-        lazy='joined'
+        init=False, back_populates='books', lazy='joined'
     )
 
     created_at: Mapped[datetime] = mapped_column(
