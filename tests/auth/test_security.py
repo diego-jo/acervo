@@ -71,7 +71,6 @@ async def test_get_current_account_without_valid_token_sub(session):
 @pytest.mark.asyncio
 async def test_get_current_account_with_expired_token(session, account):
     error_msg = 'Could not validate credentials'
-
     with freeze_time('2025-07-10 12:00:00') as frozen_time:
         token, _ = create_access_token(data={'sub': account.email})
 
