@@ -52,7 +52,6 @@ async def create_account(
 async def list_accounts(
     query: FilterAccount, db_session: AsyncSession
 ) -> AccountsList:
-
     sql_query = select(Account).offset(query.offset).limit(query.limit)
 
     if query.state:
@@ -69,7 +68,7 @@ async def update_account(
     id: int,
     account_update: AccountUpdate,
     account: Account,
-    session: AsyncSession
+    session: AsyncSession,
 ) -> AccountResponse:
     # TODO: pode ser extraído para uma dependência em cadeia!
     if account.id != id:
@@ -99,7 +98,7 @@ async def update_account(
 
 
 async def delete_account(
-        id: int, account: Account, session: AsyncSession
+    id: int, account: Account, session: AsyncSession
 ) -> None:
     if account.id != id:
         raise ForbidenOperation('not enough permissions to delete account')

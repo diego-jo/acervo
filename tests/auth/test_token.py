@@ -68,8 +68,7 @@ def test_login_with_missing_password(client):
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_login_with_disabled_account():
-    ...
+def test_login_with_disabled_account(): ...
 
 
 def test_refresh_token(account, client):

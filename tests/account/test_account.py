@@ -142,10 +142,7 @@ async def test_list_accounts_by_disabled_state(client, session):
     session.add_all(AccountFactory.create_batch(size=7, state=State.disabled))
     await session.commit()
 
-    response = client.get(
-        '/accounts',
-        params={'state': 'disabled'}
-    )
+    response = client.get('/accounts', params={'state': 'disabled'})
     accounts = response.json().get('accounts')
 
     assert response.status_code == HTTPStatus.OK
@@ -159,10 +156,7 @@ async def test_list_accounts_by_enabled_state(client, session):
     session.add_all(AccountFactory.create_batch(size=7, state=State.enabled))
     await session.commit()
 
-    response = client.get(
-        '/accounts',
-        params={'state': 'enabled'}
-    )
+    response = client.get('/accounts', params={'state': 'enabled'})
     accounts = response.json().get('accounts')
 
     assert response.status_code == HTTPStatus.OK
@@ -170,10 +164,7 @@ async def test_list_accounts_by_enabled_state(client, session):
 
 
 def test_list_accounts_with_unknown_state(client, account):
-    response = client.get(
-        '/accounts',
-        params={'state': 'desativado'}
-    )
+    response = client.get('/accounts', params={'state': 'desativado'})
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
@@ -197,10 +188,7 @@ async def test_list_accounts_with_different_offset_and_limit(client, session):
     session.add_all(AccountFactory.create_batch(size=20))
     await session.commit()
 
-    response = client.get(
-        '/accounts',
-        params={'offset': 15, 'limit': 10}
-    )
+    response = client.get('/accounts', params={'offset': 15, 'limit': 10})
     accounts = response.json().get('accounts')
 
     assert response.status_code == HTTPStatus.OK
@@ -291,9 +279,7 @@ async def test_update_account_with_already_in_use_email(
     )
 
     assert response.status_code == HTTPStatus.CONFLICT
-    assert response.json() == {
-        'detail': f'email: {new_email} already in use'
-    }
+    assert response.json() == {'detail': f'email: {new_email} already in use'}
 
 
 @pytest.mark.asyncio
