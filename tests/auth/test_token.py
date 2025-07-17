@@ -10,7 +10,7 @@ def test_login(account, client):
         data={
             'username': account.email,
             'password': account.plain_password,
-        }
+        },
     )
     data = response.json()
 
@@ -26,13 +26,11 @@ def test_login_with_invalid_username(account, client):
         data={
             'username': 'invalid',
             'password': account.plain_password,
-        }
+        },
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {
-        'detail': 'invalid username or password'
-    }
+    assert response.json() == {'detail': 'invalid username or password'}
 
 
 def test_login_with_invalid_password(account, client):
@@ -41,13 +39,11 @@ def test_login_with_invalid_password(account, client):
         data={
             'username': account.email,
             'password': 'wrong_password',
-        }
+        },
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {
-        'detail': 'invalid username or password'
-    }
+    assert response.json() == {'detail': 'invalid username or password'}
 
 
 def test_login_with_missing_username(client):
@@ -55,10 +51,10 @@ def test_login_with_missing_username(client):
         '/auth/token',
         data={
             'password': 'any_password',
-        }
+        },
     )
 
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_login_with_missing_password(client):
@@ -66,10 +62,14 @@ def test_login_with_missing_password(client):
         '/auth/token',
         data={
             'username': 'any_account',
-        }
+        },
     )
 
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_login_with_disabled_account():
+    ...
 
 
 def test_refresh_token(account, client):
@@ -79,7 +79,7 @@ def test_refresh_token(account, client):
             data={
                 'username': account.email,
                 'password': account.plain_password,
-            }
+            },
         )
         data = response_login.json()
 
@@ -87,7 +87,7 @@ def test_refresh_token(account, client):
 
         response_refresh = client.post(
             '/auth/refresh_token',
-            headers={'Authorization': f'Bearer {data['access_token']}'}
+            headers={'Authorization': f'Bearer {data["access_token"]}'},
         )
 
         refreshed_data = response_refresh.json()
@@ -106,7 +106,7 @@ def test_refresh_token_with_expired_token(account, client):
             data={
                 'username': account.email,
                 'password': account.plain_password,
-            }
+            },
         )
         data = response_login.json()
 
@@ -114,7 +114,7 @@ def test_refresh_token_with_expired_token(account, client):
 
         response_refresh = client.post(
             '/auth/refresh_token',
-            headers={'Authorization': f'Bearer {data['access_token']}'}
+            headers={'Authorization': f'Bearer {data["access_token"]}'},
         )
 
     assert response_refresh.status_code == HTTPStatus.UNAUTHORIZED
@@ -127,6 +127,4 @@ def test_refresh_token_missing_authorization_header(client):
     response_refresh = client.post('/auth/refresh_token')
 
     assert response_refresh.status_code == HTTPStatus.UNAUTHORIZED
-    assert response_refresh.json() == {
-        'detail': 'Not authenticated'
-    }
+    assert response_refresh.json() == {'detail': 'Not authenticated'}

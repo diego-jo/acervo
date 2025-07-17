@@ -32,12 +32,12 @@ async def session(engine):
 
 @pytest_asyncio.fixture
 async def account(session):
-    plain_password = '123@asd'
+    plain_password = '123@asdxc#'
 
     new_account = Account(
         username='diego',
         email='diego@email.com',
-        password=hash_password(plain_password)
+        password=hash_password(plain_password),
     )
 
     session.add(new_account)
@@ -58,3 +58,17 @@ def client(session):
         app.dependency_overrides[get_session] = override_session
         yield client
         app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def token(client, account):
+    response = client.post(
+        '/auth/token',
+        data={
+            'username': account.email,
+            'password': account.plain_password,
+        },
+    )
+
+    access_token = response.json()['access_token']
+    return access_token
