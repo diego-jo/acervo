@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from books_collection.account.models import Account
 from books_collection.auth.schemas import Token
@@ -14,13 +13,12 @@ from books_collection.auth.security import (
     get_current_account,
     verify_password,
 )
-from books_collection.database.config import get_session
+from books_collection.common.dependencies import Session
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
 CurrentAccount = Annotated[Account, Depends(get_current_account)]
 OAuth2Form = Annotated[OAuth2PasswordRequestForm, Depends()]
-Session = Annotated[AsyncSession, Depends(get_session)]
 
 
 @router.post('/token', status_code=HTTPStatus.OK, response_model=Token)
@@ -34,7 +32,7 @@ async def login(form_data: OAuth2Form, session: Session):
     ):
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
-            detail='invalid username or password'
+            detail='invalid username or password',
         )
 
     token, expires_in = create_access_token({'sub': form_data.username})

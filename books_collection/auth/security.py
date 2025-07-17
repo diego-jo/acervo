@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from typing import Annotated
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends
@@ -10,10 +9,9 @@ from jwt import decode, encode
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from books_collection.account.models import Account
-from books_collection.database.config import get_session
+from books_collection.common.dependencies import Session
 from books_collection.settings import settings
 
 context = PasswordHash.recommended()
@@ -21,7 +19,6 @@ context = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(
     tokenUrl='/auth/token', refreshUrl='/auth/refresh_token'
 )
-Session = Annotated[AsyncSession, Depends(get_session)]
 
 
 def hash_password(plain_password: str):
@@ -51,7 +48,7 @@ async def get_current_account(
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
         detail='Could not validate credentials',
-        headers={'WWW-Authentication': 'Bearer'},
+        headers={'WWW-Authenticate': 'Bearer'},
     )
 
     try:
