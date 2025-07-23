@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock
+
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
@@ -72,3 +74,8 @@ def token(client, account):
 
     access_token = response.json()['access_token']
     return access_token
+
+
+@pytest.fixture
+def mock_session():
+    return AsyncMock(spec=AsyncSession)

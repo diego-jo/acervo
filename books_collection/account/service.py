@@ -20,8 +20,6 @@ from books_collection.common.exception.errors import (
 async def create_account(
     account: AccountRequest, session: AsyncSession
 ) -> AccountResponse:
-    # TODO: entender pq mesmo com retorno de erro pelo pydantic no controller
-    # o id do banco é incrementado sem inserção
     new_account = Account(
         username=account.username,
         email=account.email,
@@ -33,31 +31,31 @@ async def create_account(
         await session.commit()
         await session.refresh(new_account)
 
-        return new_account
+        return to_account_response(new_account)
     except IntegrityError as ex:
-        msg = (
-            ex.args[0]
-            .split('DETAIL:')[1]
-            .strip()
-            .split(' ')[1]
-            .replace('(', '')
-            .replace(')', '')
-            .split('=')
-        )
-
         await session.rollback()
-        raise DuplicatedRegistry(f'{msg[0]}: {msg[1]} already in use')
+
+        error_detail = str(ex.orig)
+        if 'accounts_username_key' in error_detail:
+            error_msg = f'username: {account.username} already in use'
+            raise DuplicatedRegistry(error_msg)
+
+        if 'accounts_email_key' in error_detail:
+            error_msg = f'email: {account.email} already in use'
+            raise DuplicatedRegistry(error_msg)
+
+        raise DuplicatedRegistry('username or email already in use')
 
 
 async def list_accounts(
-    query: FilterAccount, db_session: AsyncSession
+    query: FilterAccount, session: AsyncSession
 ) -> AccountsList:
     sql_query = select(Account).offset(query.offset).limit(query.limit)
 
     if query.state:
         sql_query = sql_query.filter(Account.state == query.state)
 
-    result = await db_session.scalars(sql_query)
+    result = await session.scalars(sql_query)
 
     accounts = result.all()
 
@@ -81,20 +79,20 @@ async def update_account(
         await session.commit()
         await session.refresh(account)
 
-        return account
+        return to_account_response(account)
     except IntegrityError as ex:
-        msg = (
-            ex.args[0]
-            .split('DETAIL:')[1]
-            .strip()
-            .split(' ')[1]
-            .replace('(', '')
-            .replace(')', '')
-            .split('=')
-        )
-
         await session.rollback()
-        raise DuplicatedRegistry(f'{msg[0]}: {msg[1]} already in use')
+
+        error_detail = str(ex.orig)
+        if 'accounts_username_key' in error_detail:
+            error_msg = f'username: {account_update.username} already in use'
+            raise DuplicatedRegistry(error_msg)
+
+        if 'accounts_email_key' in error_detail:
+            error_msg = f'email: {account_update.email} already in use'
+            raise DuplicatedRegistry(error_msg)
+
+        raise DuplicatedRegistry('username or email already in use')
 
 
 async def delete_account(
@@ -104,3 +102,12 @@ async def delete_account(
         raise ForbidenOperation('not enough permissions to delete account')
     await session.delete(account)
     await session.commit()
+
+
+def to_account_response(account: Account) -> AccountResponse:
+    return AccountResponse(
+        id=account.id,
+        username=account.username,
+        email=account.email,
+        state=account.state,
+    )

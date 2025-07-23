@@ -1,24 +1,12 @@
 from http import HTTPStatus
 
-import factory
-import factory.fuzzy
 import pytest
 
 from books_collection.account.enums import State
-from books_collection.account.models import Account
+from tests.account.factories import AccountFactory
 
 
-class AccountFactory(factory.Factory):
-    class Meta:
-        model = Account
-
-    username = factory.Sequence(lambda n: f'username-{n}')
-    email = factory.LazyAttribute(lambda obj: f'{obj.username}@email.com')
-    password = factory.LazyAttribute(lambda obj: f'{obj.username}#pass')
-    state = factory.fuzzy.FuzzyChoice(State)
-
-
-def test_create_account(client):
+def test_create_account_with_success(client):
     response = client.post(
         '/accounts',
         json={
