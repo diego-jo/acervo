@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,28 +27,29 @@ async def create_account(
         email=account.email,
         password=hash_password(account.password),
     )
-
     try:
+
         session.add(new_account)
         await session.commit()
         await session.refresh(new_account)
 
-        return to_account_response(new_account)
+        return AccountResponse(**asdict(new_account))
     except IntegrityError as ex:
         await session.rollback()
 
         error_detail = str(ex.orig)
         if 'accounts_username_key' in error_detail:
-            error_msg = f'username: {account.username} already in use'
-            raise DuplicatedRegistry(error_msg)
+            exc_msg = f'username: {account.username} is already in use'
+            raise DuplicatedRegistry(exc_msg)
 
         if 'accounts_email_key' in error_detail:
-            error_msg = f'email: {account.email} already in use'
-            raise DuplicatedRegistry(error_msg)
+            exc_msg = f'email: {account.email} is already in use'
+            raise DuplicatedRegistry(exc_msg)
 
-        raise DuplicatedRegistry('username or email already in use')
+        raise DuplicatedRegistry('username or email is already in use')
 
 
+# TODO: renomear query para filter chatão!
 async def list_accounts(
     query: FilterAccount, session: AsyncSession
 ) -> AccountsList:
@@ -79,20 +82,20 @@ async def update_account(
         await session.commit()
         await session.refresh(account)
 
-        return to_account_response(account)
+        return AccountResponse(**asdict(account))
     except IntegrityError as ex:
         await session.rollback()
 
         error_detail = str(ex.orig)
         if 'accounts_username_key' in error_detail:
-            error_msg = f'username: {account_update.username} already in use'
-            raise DuplicatedRegistry(error_msg)
+            exc_msg = f'username: {account_update.username} is already in use'
+            raise DuplicatedRegistry(exc_msg)
 
         if 'accounts_email_key' in error_detail:
-            error_msg = f'email: {account_update.email} already in use'
-            raise DuplicatedRegistry(error_msg)
+            exc_msg = f'email: {account_update.email} is already in use'
+            raise DuplicatedRegistry(exc_msg)
 
-        raise DuplicatedRegistry('username or email already in use')
+        raise DuplicatedRegistry('username or email is already in use')
 
 
 async def delete_account(
@@ -102,12 +105,3 @@ async def delete_account(
         raise ForbidenOperation('not enough permissions to delete account')
     await session.delete(account)
     await session.commit()
-
-
-def to_account_response(account: Account) -> AccountResponse:
-    return AccountResponse(
-        id=account.id,
-        username=account.username,
-        email=account.email,
-        state=account.state,
-    )

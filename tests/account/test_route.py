@@ -89,7 +89,7 @@ def test_create_account_with_already_in_use_username(account, client):
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == {
-        'detail': f'username: {username_in_use} already in use'
+        'detail': f'username: {username_in_use} is already in use'
     }
 
 
@@ -106,7 +106,7 @@ def test_create_account_with_already_in_use_email(account, client):
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == {
-        'detail': f'email: {email_in_use} already in use'
+        'detail': f'email: {email_in_use} is already in use'
     }
 
 
@@ -267,7 +267,9 @@ async def test_update_account_with_already_in_use_email(
     )
 
     assert response.status_code == HTTPStatus.CONFLICT
-    assert response.json() == {'detail': f'email: {new_email} already in use'}
+    assert response.json() == {
+        'detail': f'email: {new_email} is already in use'
+    }
 
 
 @pytest.mark.asyncio
@@ -289,7 +291,7 @@ async def test_update_account_with_already_in_use_username(
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == {
-        'detail': f'username: {new_username} already in use'
+        'detail': f'username: {new_username} is already in use'
     }
 
 

@@ -57,7 +57,7 @@ async def test_create_account_successfully(mock_session):
 @pytest.mark.asyncio
 async def test_create_account_with_in_use_username(mock_session):
     request = AccountRequestFactory.create()
-    exc_msg = f'username: {request.username} already in use'
+    exc_msg = f'username: {request.username} is already in use'
     unique_exc = UniqueViolation('accounts_username_key')
     mock_session.commit.side_effect = IntegrityError(
         statement='statment', params=['any'], orig=unique_exc
@@ -75,7 +75,7 @@ async def test_create_account_with_in_use_username(mock_session):
 @pytest.mark.asyncio
 async def test_create_account_with_in_use_email(mock_session):
     request = AccountRequestFactory.create()
-    exc_msg = f'email: {request.email} already in use'
+    exc_msg = f'email: {request.email} is already in use'
     unique_exc = UniqueViolation('accounts_email_key')
     mock_session.commit.side_effect = IntegrityError(
         statement='statment', params=['any'], orig=unique_exc
@@ -93,7 +93,7 @@ async def test_create_account_with_in_use_email(mock_session):
 @pytest.mark.asyncio
 async def test_create_account_with_generic_unique_constraint(mock_session):
     request = AccountRequestFactory.create()
-    exc_msg = 'username or email already in use'
+    exc_msg = 'username or email is already in use'
     mock_session.commit.side_effect = IntegrityError(
         statement='statment', params=['any'], orig=UniqueViolation('anything')
     )
@@ -173,7 +173,7 @@ async def test_update_account_successfully(mock_session):
 @pytest.mark.asyncio
 async def test_update_account_with_in_use_username(mock_session):
     new_username = 'fulano'
-    expected_msg = f'username: {new_username} already in use'
+    expected_msg = f'username: {new_username} is already in use'
     account_to_update = AccountUpdate(username=new_username)
     db_account = AccountFactory.create()
     db_account.id = 1
@@ -193,7 +193,7 @@ async def test_update_account_with_in_use_username(mock_session):
 @pytest.mark.asyncio
 async def test_update_account_with_in_use_email(mock_session):
     new_email = 'fulano@email.com'
-    expected_msg = f'email: {new_email} already in use'
+    expected_msg = f'email: {new_email} is already in use'
     account_to_update = AccountUpdate(email=new_email)
     db_account = AccountFactory.create()
     db_account.id = 1
@@ -213,7 +213,7 @@ async def test_update_account_with_in_use_email(mock_session):
 @pytest.mark.asyncio
 async def test_update_account_with_generic_unique_constraint(mock_session):
     new_email = 'fulano@email.com'
-    exc_msg = 'username or email already in use'
+    exc_msg = 'username or email is already in use'
     account_to_update = AccountUpdate(email=new_email)
     db_account = AccountFactory.create()
     db_account.id = 1

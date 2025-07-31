@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from books_collection.book.models import Book
 from books_collection.database.tables import table_registry
 
 
@@ -13,9 +14,9 @@ class Novelist:
     __tablename__ = 'novelists'
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    name: Mapped[str] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True)
 
-    books: Mapped[list['Book']] = relationship(  # noqa: F821 # type: ignore
+    books: Mapped[list[Book]] = relationship(
         init=False,
         cascade='all, delete-orphan',
         lazy='selectin',

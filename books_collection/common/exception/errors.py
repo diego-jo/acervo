@@ -1,4 +1,4 @@
-class NotFound(Exception):
+class RegistryNotFound(Exception):
     def __init__(self, msg):
         self.msg = msg
 
